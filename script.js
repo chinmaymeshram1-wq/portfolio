@@ -217,6 +217,39 @@
   viewer.addEventListener('click', (e) => { if (e.target === viewer) viewer.close(); });
 
   /* ------------------------------------------------------------------
+     6b. Contact options (WhatsApp / Gmail / copy). Plain mailto links do
+         nothing on computers without an email app, so offer choices.
+     ------------------------------------------------------------------ */
+  const reach = $('#reach');
+  const EMAIL = 'chinmaymeshram27@gmail.com';
+  document.addEventListener('click', (e) => {
+    const trigger = e.target.closest('[data-contact]');
+    if (!trigger) return;
+    e.preventDefault();
+    setMenu(false);
+    reach.showModal();
+    if (lenis) lenis.stop();
+  });
+  reach.addEventListener('close', () => { if (lenis) lenis.start(); });
+  $('#reachClose').addEventListener('click', () => reach.close());
+  reach.addEventListener('click', (e) => { if (e.target === reach) reach.close(); });
+
+  const copyBtn = $('#copyEmail');
+  copyBtn.addEventListener('click', async () => {
+    let ok = false;
+    try { await navigator.clipboard.writeText(EMAIL); ok = true; } catch (err) {
+      // older browsers / file:// pages: fall back to a temporary text field
+      const t = document.createElement('textarea');
+      t.value = EMAIL; t.style.position = 'fixed'; t.style.opacity = '0';
+      reach.appendChild(t); t.select();
+      try { ok = document.execCommand('copy'); } catch (err2) { ok = false; }
+      t.remove();
+    }
+    copyBtn.textContent = ok ? 'Copied ✓' : EMAIL;
+    setTimeout(() => { copyBtn.textContent = 'Copy email address'; }, 2200);
+  });
+
+  /* ------------------------------------------------------------------
      7. Pointer interactions (desktop only)
      ------------------------------------------------------------------ */
   if (finePointer && !reduceMotion) {
